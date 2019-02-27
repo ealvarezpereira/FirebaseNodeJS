@@ -12,6 +12,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.content_main.*
 import android.os.Build
+import android.view.View
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -42,6 +43,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+
+
         boSi.isEnabled = false
         boNo.isEnabled = false
         // referencia a la base de datos del proyecto en firebase
@@ -53,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         databaseScore!!.updateChildren(hashScore)
         tiempo.max = 5
         tiempo.progress = 5
-        tiempo.min = 0
+
         // boton de la plantilla
         fab.setOnClickListener { view ->
             if (n < arrayPreguntas.size){
