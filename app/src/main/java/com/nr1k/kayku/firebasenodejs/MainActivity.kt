@@ -1,5 +1,6 @@
 package com.nr1k.kayku.firebasenodejs
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log
@@ -11,6 +12,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.content_main.*
 import android.os.Build
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     // para filtrar los logs
@@ -32,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     var arrayPreguntas: ArrayList<Preguntas> = ArrayList()
 
 
+    @SuppressLint("NewApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -46,8 +51,9 @@ class MainActivity : AppCompatActivity() {
 
         hashScore.put(Build.MODEL+"_"+Build.DEVICE,0)
         databaseScore!!.updateChildren(hashScore)
-
-
+        tiempo.max = 5
+        tiempo.progress = 5
+        tiempo.min = 0
         // boton de la plantilla
         fab.setOnClickListener { view ->
             if (n < arrayPreguntas.size){
@@ -57,10 +63,34 @@ class MainActivity : AppCompatActivity() {
                     txtPregunta.text = arrayPreguntas[n].id
                     boSi.isEnabled = true
                     boNo.isEnabled = true
-                }else{
-                    boSi.isEnabled = false
-                    boNo.isEnabled = false
+                    fab.isEnabled = false
+
+                    GlobalScope.launch {
+
+                        tiempo.progress = 5
+                        while (tiempo.progress != 0){
+                            delay(1000)
+                            tiempo.progress = tiempo.progress-1
+
+                        }
+                        if(tiempo.progress == 0 && boSi.isEnabled){
+                            runOnUiThread {
+                                run {
+                                    ponerScore("comes caca")
+                                    boSi.isEnabled = false
+                                    boNo.isEnabled = false
+                                }
+                            }
+                        }
+                    }
+
+                }else {
+                boSi.isEnabled = false
+                boNo.isEnabled = false
+
             }
+
+
         }
 
         boSi.setOnClickListener{view ->
@@ -94,6 +124,8 @@ class MainActivity : AppCompatActivity() {
 
 
     fun ponerScore(resp:String){
+        fab.isEnabled = true
+        tiempo.progress = 0
         if (resp.equals(arrayPreguntas[n].respuesta)){
             txtPregunta.text ="Correcto!"
             hasRespuesta.put(Build.MODEL+"_"+Build.DEVICE,Respuestas("true"))
