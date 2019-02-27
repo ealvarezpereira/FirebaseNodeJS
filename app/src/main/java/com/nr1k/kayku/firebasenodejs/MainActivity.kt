@@ -19,13 +19,14 @@ class MainActivity : AppCompatActivity() {
     // referencia de la base de datos
     private var databasePreguntas: DatabaseReference? = null
     private var databaseJugadores: DatabaseReference? = null
+    private var databaseScore: DatabaseReference? = null
     // Token del dispositivo
     private var FCMToken: String? = null
     // key unica creada automaticamente al añadir un child
     lateinit var key: String
     // para actualizar los datos necesito un hash map
+    val hasRespuesta = HashMap<String, Any>()
     val hashScore = HashMap<String, Any>()
-    var score: Int = 0
     lateinit var objPreguntas: Preguntas
     var n: Int = 0
     var arrayPreguntas: ArrayList<Preguntas> = ArrayList()
@@ -41,16 +42,24 @@ class MainActivity : AppCompatActivity() {
         // referencia a la base de datos del proyecto en firebase
         databasePreguntas = FirebaseDatabase.getInstance().getReference("/juego")
         databaseJugadores = FirebaseDatabase.getInstance().getReference("/jugadores")
-        // boton de la plantilla
+        databaseScore = FirebaseDatabase.getInstance().getReference("/puntuacion")
 
+        hashScore.put(Build.MODEL+"_"+Build.DEVICE,0)
+        databaseScore!!.updateChildren(hashScore)
+
+
+        // boton de la plantilla
         fab.setOnClickListener { view ->
             if (n < arrayPreguntas.size){
-            txtPregunta.text = arrayPreguntas[n].id
-                boSi.isEnabled = true
-                boNo.isEnabled = true
-            }else{
-                boSi.isEnabled = false
-                boNo.isEnabled = false
+
+                    hasRespuesta.put(Build.MODEL+"_"+Build.DEVICE,Respuestas(""))
+                    databaseJugadores!!.updateChildren(hasRespuesta)
+                    txtPregunta.text = arrayPreguntas[n].id
+                    boSi.isEnabled = true
+                    boNo.isEnabled = true
+                }else{
+                    boSi.isEnabled = false
+                    boNo.isEnabled = false
             }
         }
 
@@ -87,12 +96,12 @@ class MainActivity : AppCompatActivity() {
     fun ponerScore(resp:String){
         if (resp.equals(arrayPreguntas[n].respuesta)){
             txtPregunta.text ="Correcto!"
-            hashScore.put(Build.MODEL+"_"+Build.DEVICE,Respuestas(true,score))
-            databaseJugadores!!.updateChildren(hashScore)
+            hasRespuesta.put(Build.MODEL+"_"+Build.DEVICE,Respuestas("true"))
+            databaseJugadores!!.updateChildren(hasRespuesta)
         }else{
             txtPregunta.text = "Comes caca"
-            hashScore.put(Build.MODEL+"_"+Build.DEVICE, Respuestas(false,score))
-            databaseJugadores!!.updateChildren(hashScore)
+            hasRespuesta.put(Build.MODEL+"_"+Build.DEVICE, Respuestas("false"))
+            databaseJugadores!!.updateChildren(hasRespuesta)
         }
         n++
     }
@@ -109,7 +118,6 @@ class MainActivity : AppCompatActivity() {
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
                 Log.d(TAG, "Datos cambiados: " + (p0.getValue() as HashMap<*,*>).toString())
-                score =Integer.parseInt(p0.child("score").getValue().toString())
                 Log.d("prueba",p0.child("score").getValue().toString())
             }
 
