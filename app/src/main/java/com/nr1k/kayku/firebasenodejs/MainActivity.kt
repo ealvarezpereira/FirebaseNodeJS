@@ -12,7 +12,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.content_main.*
 import android.os.Build
-import android.view.View
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,14 +29,14 @@ class MainActivity : AppCompatActivity() {
     // key unica creada automaticamente al añadir un child
     lateinit var key: String
     // para actualizar los datos necesito un hash map
-    val hasRespuesta = HashMap<String, Any>()
+    val hashRespuesta = HashMap<String, Any>()
     val hashScore = HashMap<String, Any>()
     var score = HashMap<String,Int>()
     lateinit var objPreguntas: Preguntas
     lateinit var objScore: Score
     var n: Int = 0
     var arrayPreguntas: ArrayList<Preguntas> = ArrayList()
-
+    lateinit var token: String
 
     @SuppressLint("NewApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,8 +62,8 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener { view ->
             if (n < arrayPreguntas.size){
 
-                    hasRespuesta.put(Build.MODEL+"_"+Build.DEVICE,Respuestas(""))
-                    databaseJugadores!!.updateChildren(hasRespuesta)
+                    hashRespuesta.put(Build.MODEL+"_"+Build.DEVICE,Respuestas(FCMToken!!,""))
+                    databaseJugadores!!.updateChildren(hashRespuesta)
                     txtPregunta.text = arrayPreguntas[n].id
                     boSi.isEnabled = true
                     boNo.isEnabled = true
@@ -117,8 +116,8 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             try {
                 // Obtengo el token del dispositivo.
-                FCMToken = FirebaseInstanceId.getInstance().token
-
+                FCMToken = FirebaseInstanceId.getInstance().getToken()
+                Log.d("tokennn","token: "+FCMToken.toString())
             } catch (e: Exception) {
                 e.printStackTrace()
                 Log.d(TAG,"Error escribiendo datos ${e}")
@@ -136,12 +135,12 @@ class MainActivity : AppCompatActivity() {
         tiempo.progress = 0
         if (resp.equals(arrayPreguntas[n].respuesta)){
             txtPregunta.text ="Correcto!"
-            hasRespuesta.put(Build.MODEL+"_"+Build.DEVICE,Respuestas("true"))
-            databaseJugadores!!.updateChildren(hasRespuesta)
+            hashRespuesta.put(Build.MODEL+"_"+Build.DEVICE,Respuestas(FCMToken!!,"true"))
+            databaseJugadores!!.updateChildren(hashRespuesta)
         }else{
             txtPregunta.text = "Comes caca"
-            hasRespuesta.put(Build.MODEL+"_"+Build.DEVICE, Respuestas("false"))
-            databaseJugadores!!.updateChildren(hasRespuesta)
+            hashRespuesta.put(Build.MODEL+"_"+Build.DEVICE, Respuestas(FCMToken!!,"false"))
+            databaseJugadores!!.updateChildren(hashRespuesta)
         }
         n++
     }
