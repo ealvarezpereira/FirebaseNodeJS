@@ -32,7 +32,9 @@ class MainActivity : AppCompatActivity() {
     // para actualizar los datos necesito un hash map
     val hasRespuesta = HashMap<String, Any>()
     val hashScore = HashMap<String, Any>()
+    var score = HashMap<String,Int>()
     lateinit var objPreguntas: Preguntas
+    lateinit var objScore: Score
     var n: Int = 0
     var arrayPreguntas: ArrayList<Preguntas> = ArrayList()
 
@@ -88,8 +90,10 @@ class MainActivity : AppCompatActivity() {
                     }
 
                 }else {
+
                 boSi.isEnabled = false
                 boNo.isEnabled = false
+
 
             }
 
@@ -123,6 +127,7 @@ class MainActivity : AppCompatActivity() {
         // inicializo el listener para los eventos de la basededatos
         initPreguntas()
         initJugadores()
+        initScore()
     }
 
 
@@ -141,10 +146,6 @@ class MainActivity : AppCompatActivity() {
         n++
     }
 
-
-    /**
-     * Listener para los distintos eventos de la base de datos
-     */
     private fun initJugadores() {
         val childEventListener = object : ChildEventListener {
             override fun onChildRemoved(p0: DataSnapshot) {
@@ -198,6 +199,33 @@ class MainActivity : AppCompatActivity() {
         }
         // attach el evenListener a la basededatos
         databasePreguntas!!.addChildEventListener(childEventListener)
+    }
+    private fun initScore() {
+        val childEventListener = object : ChildEventListener {
+            override fun onChildRemoved(p0: DataSnapshot) {
+                Log.d(TAG, "Datos borrados: " + p0.key)
+            }
+
+            override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+                Log.d("xddd",p0.getValue().toString())
+                    if(p0.key==Build.MODEL+"_"+Build.DEVICE)
+                        txtScore.text="Score: "+p0.getValue().toString()
+            }
+
+            override fun onChildMoved(p0: DataSnapshot, p1: String?) {
+                Log.d(TAG, "Datos movidos")
+            }
+
+            override fun onChildAdded(p0: DataSnapshot, p1: String?) {
+                // onChildAdded() capturamos la key
+            }
+
+            override fun onCancelled(p0: DatabaseError) {
+                Log.d(TAG, "Error cancelacion")
+            }
+        }
+        // attach el evenListener a la basededatos
+        databaseScore!!.addChildEventListener(childEventListener)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
