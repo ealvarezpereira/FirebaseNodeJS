@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener { view ->
             if (n < arrayPreguntas.size){
 
-                    hashRespuesta.put(Build.MODEL+"_"+Build.DEVICE,Respuestas(FCMToken!!,""))
+                    hashRespuesta.put(Build.MODEL+"_"+Build.DEVICE,Respuestas(FCMToken!!,"","false"))
                     databaseJugadores!!.updateChildren(hashRespuesta)
                     txtPregunta.text = arrayPreguntas[n].id
                     boSi.isEnabled = true
@@ -135,14 +135,20 @@ class MainActivity : AppCompatActivity() {
         tiempo.progress = 0
         if (resp.equals(arrayPreguntas[n].respuesta)){
             txtPregunta.text ="Correcto!"
-            hashRespuesta.put(Build.MODEL+"_"+Build.DEVICE,Respuestas(FCMToken!!,"true"))
+            hashRespuesta.put(Build.MODEL+"_"+Build.DEVICE,Respuestas(FCMToken!!,"true","false"))
             databaseJugadores!!.updateChildren(hashRespuesta)
         }else{
             txtPregunta.text = "Comes caca"
-            hashRespuesta.put(Build.MODEL+"_"+Build.DEVICE, Respuestas(FCMToken!!,"false"))
+            hashRespuesta.put(Build.MODEL+"_"+Build.DEVICE, Respuestas(FCMToken!!,"false","false"))
             databaseJugadores!!.updateChildren(hashRespuesta)
         }
         n++
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        hashRespuesta.put(Build.MODEL+"_"+Build.DEVICE, Respuestas(FCMToken!!,"","true"))
+        databaseJugadores!!.updateChildren(hashRespuesta)
     }
 
     private fun initJugadores() {
